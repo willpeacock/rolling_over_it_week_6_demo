@@ -18,6 +18,9 @@ public class PlayerController : MonoBehaviour
     private CircleCollider2D circleColl;
 	private Rigidbody2D rb;
 
+	// Can the player be controlled?
+	private bool playerActive = true;
+
 
     private void Start()
     {
@@ -31,6 +34,10 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+		if (!playerActive) {
+			return;
+		}
+
         //this function runs EVERY frame of the game.
 
         //first, we need to see if we're on the ground
@@ -60,12 +67,16 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        //this function runs in SET INTERVALS
-        //Not defined by framerate
+		if (!playerActive) {
+			return;
+		}
 
-        //see if the left/right input keys are pressed
-        //store how "pressed" they are in a number
-        float horizontalInput = Input.GetAxis("Horizontal");
+		//this function runs in SET INTERVALS
+		//Not defined by framerate
+
+		//see if the left/right input keys are pressed
+		//store how "pressed" they are in a number
+		float horizontalInput = Input.GetAxis("Horizontal");
 
         //  if the player is moving too fast           OR   the velocity of the player is NOT the same as the horizontal input
         if (rb.velocity.magnitude <= maxThrustVelocity || Mathf.Sign(rb.velocity.x) != Mathf.Sign(horizontalInput))
@@ -74,6 +85,13 @@ public class PlayerController : MonoBehaviour
             rb.AddForce(Vector2.right * horizontalInput * groundThrust);
         }
     }
+
+	public void FreezeAndDisablePlayer() {
+		playerActive = false;
+		rb.velocity = Vector2.zero;
+		rb.angularVelocity = 0;
+		rb.bodyType = RigidbodyType2D.Static;
+	}
 
     private bool CheckForGround()
     {

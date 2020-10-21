@@ -60,12 +60,12 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        //this function runs in SET INTERVALS
-        //Not defined by framerate
+		//this function runs in SET INTERVALS
+		//Not defined by framerate
 
-        //see if the left/right input keys are pressed
-        //store how "pressed" they are in a number
-        float horizontalInput = Input.GetAxis("Horizontal");
+		//see if the left/right input keys are pressed
+		//store how "pressed" they are in a number
+		float horizontalInput = Input.GetAxis("Horizontal");
 
         //  if the player is moving too fast           OR   the velocity of the player is NOT the same as the horizontal input
         if (rb.velocity.magnitude <= maxThrustVelocity || Mathf.Sign(rb.velocity.x) != Mathf.Sign(horizontalInput))

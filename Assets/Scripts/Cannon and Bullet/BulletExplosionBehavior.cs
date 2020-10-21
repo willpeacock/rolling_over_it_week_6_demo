@@ -12,22 +12,26 @@ public class BulletExplosionBehavior : MonoBehaviour {
     private CircleCollider2D explosionColl;
     private float explosionRadius;
     private ExplosionManager explosionManager;
+	private bool hasInitialized = false;
     
     private const float distanceFactorMultiplier = 10.0f;
-    void Start() {
-        hitObjects = new List<GameObject>();
+    public void InitializeExplosionBehavior(ExplosionManager explosionManager) {
+		this.explosionManager = explosionManager;
+
+		hitObjects = new List<GameObject>();
         
         explosionColl = GetComponent<CircleCollider2D>();
-        explosionRadius = explosionColl.radius;
+		explosionColl.enabled = true;
+		explosionRadius = explosionColl.radius;
 
-        explosionManager = FindObjectOfType<ExplosionManager>();
-        
-        if (explosionManager == null) {
-            Debug.LogError("Could not find object of type ExplosionManager in current scene");
-        }
-    }
+		hasInitialized = true;
+	}
 
     void OnTriggerEnter2D(Collider2D coll) {
+		if (!hasInitialized) {
+			return;
+		}
+
         // if object collided with is in our defined layer mask
         if (collideLayerMask == (collideLayerMask | (1 << coll.gameObject.layer))) {
             // if this object has not already been affected by this explosion instance

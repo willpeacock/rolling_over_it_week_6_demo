@@ -245,6 +245,8 @@ MonoBehaviour:
     type: 3}
   bulletSpawnPosition: {fileID: 27426108820479902}
   cannonColorSR: {fileID: 27426110147198670}
+  explosionManagerPrefab: {fileID: 1166769350093543758, guid: 1d099f00977979142befbeac489b6b93,
+    type: 3}
   bulletFireForce: 50
 --- !u!58 &27426109364204227
 CircleCollider2D:

@@ -9,13 +9,20 @@ public class CannonBehavior : MonoBehaviour {
     public GameObject bulletObject;
     public Transform bulletSpawnPosition;
     public SpriteShapeRenderer cannonColorSR;
+	public GameObject explosionManagerPrefab;
     public float bulletFireForce = 50.0f;
 
     private Transform playerTransform;
     private Animator cannonAnim;
     private AudioSource shootNoise;
     private bool fireBulletCoOn = true;
+	private ExplosionManager explosionManager;
     void Start() {
+		explosionManager = FindObjectOfType<ExplosionManager>();
+		if (explosionManager == null) {
+			explosionManager = Instantiate(explosionManagerPrefab, Vector3.zero, Quaternion.identity).GetComponent<ExplosionManager>();
+		}
+
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null) {
             playerTransform = player.transform;
@@ -46,11 +53,12 @@ public class CannonBehavior : MonoBehaviour {
         }
     }
 
+	// Called by an 'Animation Event' found within the animator attached to the cannon under the 'fire' animation
     public void FireBullet() {
         // Create a new bullet object, set its color based off of the cannon, and set its initial speed
         BulletBehavior newBullet = Instantiate(bulletObject, bulletSpawnPosition.position, transform.rotation).GetComponent<BulletBehavior>();
         newBullet.SetBulletColor(cannonColorSR.color);
-        newBullet.FireBullet(bulletFireForce);
+        newBullet.FireBullet(explosionManager, bulletFireForce);
 
         // Add variation in the shooting noise to avoid repetition in sound
         shootNoise.pitch = Random.Range(0.8f, 1.2f);

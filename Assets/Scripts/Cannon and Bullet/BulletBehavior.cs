@@ -4,14 +4,15 @@ using UnityEngine;
 using UnityEngine.U2D;
 
 public class BulletBehavior : MonoBehaviour {
-    public BulletExplosionBehavior explosionBehavior;
-    public LayerMask collideLayerMask;
+	public BulletExplosionBehavior explosionBehavior;
+	public LayerMask collideLayerMask;
     public Transform backOfBullet;
     public Rigidbody2D rb;
     public SpriteShapeRenderer bulletColorSR;
     public AudioSource explosionSound;
 
-    private bool hasExploded = false;
+	private ExplosionManager explosionManager;
+	private bool hasExploded = false;
 
     // Called once every frame, use for non-physics actions
     void Update() {
@@ -21,9 +22,11 @@ public class BulletBehavior : MonoBehaviour {
         transform.GetChild(0).rotation = Quaternion.AngleAxis(angle, Vector3.forward);
     }
 
-    public void FireBullet(float launchSpeed = 50.0f) {
-        // transform.right is relative to the player, so this will always be 'forward' for our uses
-        rb.AddForceAtPosition(transform.right * launchSpeed, backOfBullet.position, ForceMode2D.Impulse);
+    public void FireBullet(ExplosionManager explosionManager, float launchSpeed = 50.0f) {
+		this.explosionManager = explosionManager;
+
+		// transform.right is relative to the player, so this will always be 'forward' for our uses
+		rb.AddForceAtPosition(transform.right * launchSpeed, backOfBullet.position, ForceMode2D.Impulse);
     }
 
     public void SetBulletColor(Color newColor) {
@@ -31,6 +34,11 @@ public class BulletBehavior : MonoBehaviour {
     }
 
     void OnTriggerEnter2D(Collider2D coll) {
+		if (!explosionBehavior) {
+			Debug.LogError("Bullet unable to find object of type ExplosionManager. Failed to generate explosion");
+			return;
+		}
+
         // If the object that the bullet collided with is within the specified layer mask...
         if (!hasExploded && collideLayerMask == (collideLayerMask | (1 << coll.gameObject.layer))) {
             explosionSound.pitch = Random.Range(0.8f, 1f);
@@ -48,11 +56,12 @@ public class BulletBehavior : MonoBehaviour {
         // then disable sprites of bullet
         transform.GetChild(0).gameObject.SetActive(false);
 
-        // then enable the explosion force and display the graphics
-        explosionBehavior.gameObject.SetActive(true);
+		// then enable the explosion force and display the graphics
+		explosionBehavior.gameObject.SetActive(true);
+		explosionBehavior.InitializeExplosionBehavior(explosionManager);
 
-        // wait a bit for explosion force's effect
-        yield return new WaitForSeconds(0.2f);
+		// wait a bit for explosion force's effect
+		yield return new WaitForSeconds(0.2f);
 
         // then disable its explosion
         explosionBehavior.gameObject.SetActive(false);
